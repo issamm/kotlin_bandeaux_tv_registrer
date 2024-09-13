@@ -1,3 +1,5 @@
+package dev.issam.bandeauxtv.registrer.image
+
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
@@ -9,8 +11,8 @@ class ScreenshotImage() {
         bufferedImage = loadScreenshotImage(bufferedImagePath)
     }
 
-    private fun loadScreenshotImage(path: String): BufferedImage {
-        val imageFile = File(path)
+    private fun loadScreenshotImage(screenshotImagePath: String): BufferedImage {
+        val imageFile = File(screenshotImagePath)
         return ImageIO.read(imageFile)
     }
 

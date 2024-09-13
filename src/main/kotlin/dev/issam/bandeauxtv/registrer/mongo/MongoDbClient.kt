@@ -1,3 +1,5 @@
+package dev.issam.bandeauxtv.registrer.mongo
+
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoCredential
@@ -5,8 +7,7 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.connection.ConnectionPoolSettings
 import com.mongodb.kotlin.client.coroutine.MongoClient
-import kotlinx.coroutines.runBlocking
-import org.bson.Document
+import dev.issam.bandeauxtv.registrer.properties.MongodbProperties
 import java.util.concurrent.TimeUnit
 
 class MongoDbClient {
