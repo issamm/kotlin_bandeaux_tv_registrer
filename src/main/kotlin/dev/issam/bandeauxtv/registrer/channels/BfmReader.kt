@@ -1,40 +1,37 @@
 package dev.issam.bandeauxtv.registrer.channels
 
+import dev.issam.bandeauxtv.registrer.dao.ScreenshotRepository
 import dev.issam.bandeauxtv.registrer.image.CropImagePartFromScreenshot
 import dev.issam.bandeauxtv.registrer.image.ReadTextFromImage
 import dev.issam.bandeauxtv.registrer.image.ScreenshotImage
+import dev.issam.bandeauxtv.registrer.image.WatchFilesInFolderAndCallback
 import dev.issam.bandeauxtv.registrer.properties.ImagesProperties
+import dev.issam.bandeauxtv.registrer.properties.MongodbProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.nio.file.Files
 import javax.imageio.ImageIO
 
-class BfmReader(val imagesProperties: ImagesProperties) {
+class BfmReader(val imagesProperties: ImagesProperties, val mongodbProperties: MongodbProperties) {
 
     val folderToWatch = imagesProperties.rootPath + imagesProperties.bfmSubPath + imagesProperties.screenshotsSubPath
     val bandeauxFolderpath = imagesProperties.rootPath + imagesProperties.bfmSubPath + imagesProperties.bandeauxSubPath
 
-    
     fun watchFolderAndReadBandeaux() {
-        while (true)
-            if (File(folderToWatch).listFiles()?.size ?: 0 > 0)
-                for (screenshotFilename in File(folderToWatch).listFiles()
-                    .filter { file -> file.isFile }
-                    .filter { file -> "png".equals(file.extension, true) || "jpg".equals(file.extension, false) }
-                    .map { file -> file.name })
-                    readTheNewScreenshots(folderToWatch, screenshotFilename)
+        WatchFilesInFolderAndCallback().watchFolderAndCallback(folderToWatch, ::readTheNewScreenshot)
     }
 
-    private fun readTheNewScreenshots(folderToWatch: String, screenshotFilename: String) = runBlocking {
+    private fun readTheNewScreenshot(folderToWatch: String, screenshotFilename: String) = runBlocking {
         delay(1000)
-        println("Files !!! $folderToWatch $screenshotFilename")
-        cropBandeauFromScreenshot(folderToWatch, screenshotFilename)
-        val bandeauPrincipalText =
-            ReadTextFromImage(bandeauxFolderpath + screenshotFilename + imagesProperties.bandeauFilenameSuffix)
+        println("New screenshot to read = $folderToWatch$screenshotFilename")
+        val screenshot = ScreenshotImage(folderToWatch, screenshotFilename)
+        cropBandeauFromScreenshot(screenshot)
+        val bandeauPrincipalText = ReadTextFromImage(bandeauxFolderpath + screenshotFilename + imagesProperties.bandeauFilenameSuffix)
                 .read()
         println("J'ai lu $bandeauPrincipalText")
         moveToArchiveFolder(folderToWatch, screenshotFilename, imagesProperties.screenshotsArchiveSubPath)
+        ScreenshotRepository(mongodbProperties).storeScreenshotInDb(bandeauPrincipalText)
     }
 
     private fun moveToArchiveFolder(
@@ -51,14 +48,13 @@ class BfmReader(val imagesProperties: ImagesProperties) {
         }
     }
 
-    private fun cropBandeauFromScreenshot(folderToWatch: String, screenshotFilename: String) {
-        val screenshot = ScreenshotImage(folderToWatch + screenshotFilename)
+    private fun cropBandeauFromScreenshot(screenshot: ScreenshotImage) {
         val bandeauImage = CropImagePartFromScreenshot()
             .crop(screenshot, BfmBandeaux().bandeauPrincipalRectangle)
         ImageIO.write(
             bandeauImage,
             imagesProperties.bandeauImageFormat,
-            File(bandeauxFolderpath + screenshotFilename + imagesProperties.bandeauFilenameSuffix)
+            File(bandeauxFolderpath + screenshot.screenshotFilename + imagesProperties.bandeauFilenameSuffix)
         )
     }
 }

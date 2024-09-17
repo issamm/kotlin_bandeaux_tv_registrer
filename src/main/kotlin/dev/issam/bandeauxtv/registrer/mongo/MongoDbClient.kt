@@ -7,12 +7,18 @@ import com.mongodb.ServerApi
 import com.mongodb.ServerApiVersion
 import com.mongodb.connection.ConnectionPoolSettings
 import com.mongodb.kotlin.client.coroutine.MongoClient
+import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dev.issam.bandeauxtv.registrer.properties.MongodbProperties
 import java.util.concurrent.TimeUnit
 
-class MongoDbClient {
+class MongoDbClient(val mongoDbProperties: MongodbProperties) {
 
-    fun mongodbConnection(mongoDbProperties: MongodbProperties): MongoClient {
+    fun db(): MongoDatabase {
+        val mongoClient = mongodbConnection(mongoDbProperties)
+        return mongoClient.getDatabase(databaseName = mongoDbProperties.databaseName)
+    }
+
+    private fun mongodbConnection(mongoDbProperties: MongodbProperties): MongoClient {
         // Replace the placeholders with your credentials and hostname
         val connectionString =
             "mongodb://${mongoDbProperties.url}:${mongoDbProperties.port}/${mongoDbProperties.databaseName}"
@@ -40,7 +46,6 @@ class MongoDbClient {
             }
             println("Pinged your deployment. You successfully connected to MongoDB!")
         }
-
          */
         return mongoClient
     }
