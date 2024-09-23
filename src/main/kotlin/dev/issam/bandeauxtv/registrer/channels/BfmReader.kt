@@ -16,10 +16,10 @@ class BfmReader(private val imagesProperties: ImagesProperties,
         WatchFilesInFolderAndCallback().watchFolderAndCallback(folderToWatch, ::readTheNewScreenshot)
     }
 
-    private fun readTheNewScreenshot(screenshotImage: ScreenshotImage) = runBlocking {
+    private fun readTheNewScreenshot(screenshotFilename: String) = runBlocking {
         // Attendre la fin de l'enregistrement de l'image par VLC (bufferisée, erreur rencontrée)
-        delay(100)
-
+        delay(1000)
+        val screenshotImage = ScreenshotImage(folderToWatch, screenshotFilename)
         CropImagePartFromScreenshot(imagesProperties).cropAndStoreOnFilesystem(screenshotImage, BfmBandeaux().bandeauPrincipalRectangle)
         screenshotImage.bandeauPrincipalText =
             ReadTextFromImage(screenshotImage.screenFilepath() + imagesProperties.bandeauFilenameSuffix)
