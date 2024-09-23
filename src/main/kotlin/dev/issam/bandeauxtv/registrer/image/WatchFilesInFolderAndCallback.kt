@@ -4,7 +4,7 @@ import java.io.File
 
 class WatchFilesInFolderAndCallback {
 
-    fun watchFolderAndCallback(folderToWatch: String, callbackFn: (folderToWatch: String, screenshotFilename: String) -> Unit) {
+    fun watchFolderAndCallback(folderToWatch: String, callbackFn: (screenshotImage: ScreenshotImage) -> Unit) {
         println("Watching $folderToWatch for new screenshots to read...")
         while (true) {
             if (File(folderToWatch).listFiles()?.size ?: 0 > 0) {
@@ -12,8 +12,9 @@ class WatchFilesInFolderAndCallback {
                     .filter { file -> file.isFile }
                     .filter { file -> isAnImage(file) }
                     .map { file -> file.name }) {
-
-                    callbackFn(folderToWatch, screenshotFilename)
+                    println("New screenshot to read = $folderToWatch$screenshotFilename")
+                    val screenshot = ScreenshotImage(folderToWatch, screenshotFilename)
+                    callbackFn(screenshot)
                 }
             }
         }
@@ -23,6 +24,5 @@ class WatchFilesInFolderAndCallback {
         "png".equals(file.extension, false)
                 || "jpg".equals(file.extension, false)
                 || "jpeg".equals(file.extension, false)
-
 
 }

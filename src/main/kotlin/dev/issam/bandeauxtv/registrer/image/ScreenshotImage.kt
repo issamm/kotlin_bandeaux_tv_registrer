@@ -5,6 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 class ScreenshotImage() {
+    lateinit var bandeauPrincipalText: String
     lateinit var bufferedImage: BufferedImage
     lateinit var folder: String
     lateinit var screenshotFilename: String
@@ -20,4 +21,10 @@ class ScreenshotImage() {
         return ImageIO.read(imageFile)
     }
 
+    fun screenFilepath(): String = folder + screenshotFilename
+
+    /*
+    fun setBandeauPrincipalText(bandeauPrincipalText: String): Unit {
+        this.bandeauPrincipalText = bandeauPrincipalText
+    }*/
 }

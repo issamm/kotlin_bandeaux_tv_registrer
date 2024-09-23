@@ -8,7 +8,6 @@ import dev.issam.bandeauxtv.registrer.properties.MongodbProperties
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-
 suspend fun main() {
     val properties = ConfigurationProperties.fromResource("defaults.properties")
     val mongodbProperties = MongodbProperties(properties)
